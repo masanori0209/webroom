@@ -1,0 +1,72 @@
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./web/Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - nginx_network
+    depends_on:
+      - back
+      - socket
+  db:
+    build:
+      context: db
+      dockerfile: Dockerfile
+    volumes:
+      - ./db/db-datadir:/app
+    networks:
+      - nginx_network
+    ports:
+      - "3306:3306"
+    restart: always
+    tty: true
+    environment:
+      MYSQL_DATABASE: sample_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    networks:
+      - nginx_network
+  back:
+    build:
+      context: back
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    networks:
+      - nginx_network
+    expose:
+      - "8001"
+    links:
+      - db
+  socket:
+    build:
+      context: socket
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    networks:
+      - nginx_network
+    expose:
+      - "3001"
+    links:
+      - db
+  front:
+    build:
+      context: front
+      dockerfile: Dockerfile
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8080:8080"
+    tty: true
+
+# NETWORK 
+networks:
+  nginx_network:
+    driver: bridge
