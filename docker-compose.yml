@@ -8,6 +8,8 @@ services:
       - "8000:8000"
     networks:
       - nginx_network
+    environment:
+      TZ: $VAR_TIMEZONE
     depends_on:
       - back
       - socket
@@ -15,8 +17,6 @@ services:
     build:
       context: db
       dockerfile: Dockerfile
-    volumes:
-      - ./db/db-datadir:/app
     networks:
       - nginx_network
     ports:
@@ -24,10 +24,14 @@ services:
     restart: always
     tty: true
     environment:
-      MYSQL_DATABASE: sample_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      TZ: $VAR_TIMEZONE
+    volumes:
+      - ./db/conf.d:/etc/mysql/conf.d
+      - ./db/db-datadir:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -37,9 +41,11 @@ services:
       context: back
       dockerfile: Dockerfile
     volumes:
-      - ./app:/app
+      - ./back/app:/app
     networks:
       - nginx_network
+    environment:
+      - TZ=Asia/Tokyo
     expose:
       - "8001"
     links:
@@ -49,9 +55,11 @@ services:
       context: socket
       dockerfile: Dockerfile
     volumes:
-      - ./app:/app
+      - ./socket/app:/app
     networks:
       - nginx_network
+    environment:
+      - TZ=Asia/Tokyo
     expose:
       - "3001"
     links:
@@ -61,12 +69,11 @@ services:
       context: front
       dockerfile: Dockerfile
     volumes:
-      - .:/usr/src/app
+      - ./front:/usr/src/app
     ports:
       - "8080:8080"
     tty: true
 
-# NETWORK 
 networks:
   nginx_network:
     driver: bridge
