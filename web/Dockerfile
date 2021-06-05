@@ -25,6 +25,6 @@ RUN set -x \
 RUN mkdir -p /var/www/public
 RUN mkdir -p /var/www/static
 COPY front/public /var/www/public/
-COPY back/static /var/www/static/
+COPY back/app/static /var/www/static/
 
-CMD ["service", "nginx", "start"]
+EXPOSE 8000
