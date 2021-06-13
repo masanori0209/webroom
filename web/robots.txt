@@ -1,7 +1,0 @@
-User-agent: *
-Sitemap: https://hr-monster.io/sitemap.xml
-Disallow: /go-lang-and-cobol/
-Disallow: /api/
-Disallow: /ws/
-Disallow: /chat/
-Disallow: /chat
